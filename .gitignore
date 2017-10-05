@@ -1,0 +1,6 @@
+# files and folders that are not necessary 
+
+LSTMEncDecAttn/
+corpus/
+internship/
+.DS_Store

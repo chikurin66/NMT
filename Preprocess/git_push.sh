@@ -3,7 +3,7 @@
 echo "pushing resume automatically."
 
 git pull origin master
-git add resume.md
+git add .
 
 if [ $# -gt 0 ]
 then 
@@ -19,7 +19,7 @@ else
     then
         git commit -m "updated resume using shellscript."
         git push origin master
-        open -a "/Applications/Google Chrome.app" https://github.com/OnizukaLab/tashiKANI_resumes/blob/master/takebayashi_yuto/resume.md
+        # open -a "/Applications/Google Chrome.app" https://github.com/OnizukaLab/tashiKANI_resumes/blob/master/takebayashi_yuto/resume.md
     else
         echo "Please enter the message to commit"
     fi

@@ -1,0 +1,2 @@
+./learn_bpe.py -s {num_operations} < {train_file} > {codes_file}
+./apply_bpe.py -c {codes_file} < {test_file}

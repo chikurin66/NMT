@@ -11,16 +11,23 @@ TLAN=en
 
 PREP_DIR=/home/takebayashi/src/Preprocess
 
-YEAR=2010
+YEAR="
+2011
+2012
+2013
+2014
+2015
+"
 
 date
 
 # extract sentence
-
+tmp="
 python ${PREP_DIR}/sentExt_iwslt_dev.py ${ORIG_CORPUS}.dev2010.en-ja.ja.xml \
                                         ${ORIG_CORPUS}.dev2010.en-ja.en.xml \
                                         ${CORPUS_DIR}/dev.iwslt.ext.ja \
                                         ${CORPUS_DIR}/dev.iwslt.ext.en 
+"
 for y in ${YEAR}
 do
 python ${PREP_DIR}/sentExt_iwslt_dev.py ${ORIG_CORPUS}.tst${y}.en-ja.ja.xml \
@@ -31,10 +38,10 @@ done
 
 
 # tokenize for japanese
-
+tmp="
 cat ${CORPUS_DIR}/dev.iwslt.ext.ja | mecab -Owakati | python3 han2zen.py \
                                    > ${CORPUS_DIR}/dev.iwslt.wakati.ja
-
+"
 for y in ${YEAR}
 do
 cat ${CORPUS_DIR}/test${y}.iwslt.ext.ja | mecab -Owakati | python3 han2zen.py \
@@ -43,12 +50,12 @@ done
 
 
 # tokenize and lowercase
-
+tmp="
 cat ${CORPUS_DIR}/dev.iwslt.wakati.ja | python ${PREP_DIR}/tokenize_lowercase.py \
                                       > ${CORPUS_DIR}/dev.iwslt.tok.ja
 cat ${CORPUS_DIR}/dev.iwslt.ext.en | python ${PREP_DIR}/tokenize_lowercase.py \
                                       > ${CORPUS_DIR}/dev.iwslt.tok.en
-
+"
 for y in ${YEAR}
 do
 cat ${CORPUS_DIR}/test${y}.iwslt.wakati.ja | python ${PREP_DIR}/tokenize_lowercase.py \

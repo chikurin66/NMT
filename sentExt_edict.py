@@ -7,6 +7,18 @@ import sys
 import re
 
 args = sys.argv
+
+sw_en = args[1]
+
+#stopword_ja = []
+stopword_en = []
+#for w in open(sw_ja, 'r'):
+#    w = w.strip()
+#    stopword_ja.append(w)
+for w in open(sw_en, 'r'):
+    w = w.strip()
+    stopword_en.append(w)
+
 reg1 = re.compile("(\(.*?\))")
 reg2 = re.compile("/")
 
@@ -22,7 +34,9 @@ for line in sys.stdin:
     mean = reg2.sub(" ", mean) # スラッシュを空白に置換 
     mean = mean.lower()
     mean = mean.replace(",", " ,")
+    mean = mean.replace("\"", " \" ")
     mean_list = [w for w in mean.split(" ") if w != '']
+    mean_list = [w for w in mean_list if w not in stopword_en] # delete stop word
     # entryの重複をなくすため辞書に
     if entry in e_m_dict:
         e_m_dict[entry].extend(mean_list)
@@ -32,4 +46,4 @@ for line in sys.stdin:
 # 単語の重複をなくす
 for k, v in e_m_dict.items():
     e_m_dict[k] = ' '.join(list(set(e_m_dict[k])))
-    print(k + '|' + e_m_dict[k])
+    print(k + '||' + e_m_dict[k])

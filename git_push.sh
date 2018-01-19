@@ -15,7 +15,7 @@ else
     echo "Comment of commiting will be \"updated resume using shellscript.\""
     echo "Do you continue? (y/n)"
     read ANSWER
-    if [ "$ANSWER" == "y" ]
+    if [ "$ANSWER" = "y" ]
     then
         git commit -m "updated resume using shellscript."
         git push origin master

@@ -1,9 +1,7 @@
 #!/bin/bash
 
-# コーパスをtokenize/lowercaceした後vocabファイルを作り
-# training, dev, devtest, testに分ける
 
-CORPUS_DIR=/home/takebayashi/src/corpus/IWSLT
+CORPUS_DIR=/home/takebayashi/src/corpus/EDICT
 ORIG_CORPUS=${CORPUS_DIR}/IWSLT17.TED
 
 SLAN=ja
@@ -16,46 +14,24 @@ YEAR=2010
 date
 
 # extract sentence
+DONE="
+cat ${CORPUS_DIR}/edict.txt \
+    | python sentExt_edict.py ${PREP_DIR}/stopword.en \
+    | python3 han2zen.py \
+    | python split.py ${CORPUS_DIR}/edict.ext.ja ${CORPUS_DIR}/edict.ext.en
 
-python ${PREP_DIR}/sentExt_iwslt_dev.py ${ORIG_CORPUS}.dev2010.en-ja.ja.xml \
-                                        ${ORIG_CORPUS}.dev2010.en-ja.en.xml \
-                                        ${CORPUS_DIR}/dev.iwslt.ext.ja \
-                                        ${CORPUS_DIR}/dev.iwslt.ext.en 
-for y in ${YEAR}
-do
-python ${PREP_DIR}/sentExt_iwslt_dev.py ${ORIG_CORPUS}.tst${y}.en-ja.ja.xml \
-                                        ${ORIG_CORPUS}.tst${y}.en-ja.en.xml \
-                                        ${CORPUS_DIR}/test${y}.iwslt.ext.ja \
-                                        ${CORPUS_DIR}/test${y}.iwslt.ext.en 
-done
+cat ${CORPUS_DIR}/edict.ext.ja | mecab -Owakati > ${CORPUS_DIR}/edict.wakati.ja
 
+python delete_stopword.py ${PREP_DIR}/stopword.ja ${CORPUS_DIR}/edict.wakati.ja ${CORPUS_DIR}/edict.ext.en \
+    ${CORPUS_DIR}/edict.tok.ja ${CORPUS_DIR}/edict.tok.en
+"
 
-# tokenize for japanese
+N_OP=32000
+CODE_FILE=${CORPUS_DIR}/shared_bpe${N_OP}.code
+#cat ${CORPUS_DIR}/edict.tok.ja ${CORPUS_DIR}/edict.tok.en | python ./bpe/learn_bpe.py -s ${N_OP} -o ${CODE_FILE}
 
-cat ${CORPUS_DIR}/dev.iwslt.ext.ja | mecab -Owakati | python3 han2zen.py \
-                                   > ${CORPUS_DIR}/dev.iwslt.wakati.ja
+#python3 ./bpe/apply_bpe.py -c ${CODE_FILE} < ${CORPUS_DIR}/edict.tok.ja | python3 ./bpe/get_vocab.py > ${CORPUS_DIR}/edict.tok.vocab.ja
+#python3 ./bpe/apply_bpe.py -c ${CODE_FILE} < ${CORPUS_DIR}/edict.tok.en | python3 ./bpe/get_vocab.py > ${CORPUS_DIR}/edict.tok.vocab.en
 
-for y in ${YEAR}
-do
-cat ${CORPUS_DIR}/test${y}.iwslt.ext.ja | mecab -Owakati | python3 han2zen.py \
-                                        > ${CORPUS_DIR}/test${y}.iwslt.wakati.ja
-done
-
-
-# tokenize and lowercase
-
-cat ${CORPUS_DIR}/dev.iwslt.wakati.ja | python ${PREP_DIR}/tokenize_lowercase.py \
-                                      > ${CORPUS_DIR}/dev.iwslt.tok.ja
-cat ${CORPUS_DIR}/dev.iwslt.ext.en | python ${PREP_DIR}/tokenize_lowercase.py \
-                                      > ${CORPUS_DIR}/dev.iwslt.tok.en
-
-for y in ${YEAR}
-do
-cat ${CORPUS_DIR}/test${y}.iwslt.wakati.ja | python ${PREP_DIR}/tokenize_lowercase.py \
-                                           > ${CORPUS_DIR}/test${y}.iwslt.tok.ja
-cat ${CORPUS_DIR}/test${y}.iwslt.ext.en | python ${PREP_DIR}/tokenize_lowercase.py \
-                                        > ${CORPUS_DIR}/test${y}.iwslt.tok.en
-done
-
-
-date
+python3 ./bpe/apply_bpe.py -c ${CODE_FILE} < ${CORPUS_DIR}/edict.tok.ja > ${CORPUS_DIR}/edict.bpe.ja
+python3 ./bpe/apply_bpe.py -c ${CODE_FILE} < ${CORPUS_DIR}/edict.tok.en > ${CORPUS_DIR}/edict.bpe.en

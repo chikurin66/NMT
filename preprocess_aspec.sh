@@ -24,6 +24,7 @@ BEGIN=1
 
 date
 
+DONE='
 # extract sentence
 sh sentExt_aspec.sh
 
@@ -71,5 +72,31 @@ for l in ${SLAN} ${TLAN}
 do
     python ${PREP_DIR}/headVocab.py ${CORPUS_DIR}/train.aspec.tok.${l}.vocab_t${T}_tab ${TOP_N} > ${CORPUS_DIR}/train.aspec.tok.${l}.h${TOP_N}.vocab_t${T}_tab
 done
+'
+
+# apply bpe
+
+DONE='
+N_OP=32000
+CODE_FILE=${CORPUS_DIR}/shared_bpe${N_OP}.code
+cat ${CORPUS_DIR}/train-all.aspec.tok.ja ${CORPUS_DIR}/train-all.aspec.tok.en \
+    | python3 ./bpe/learn_bpe.py -s ${N_OP} -o ${CODE_FILE}
+
+
+for fn in "train-all" "dev" "devtest" "test"
+do
+for LAN in ja en
+do
+python3 ./bpe/apply_bpe.py -c ${CODE_FILE} < ${CORPUS_DIR}/${fn}.aspec.tok.${LAN} \
+    > ${CORPUS_DIR}/${fn}.aspec.bpe.${LAN}
+done
+done
+'
+
+for LAN in ja en
+do
+cat ${CORPUS_DIR}/train-all.aspec.bpe.${LAN} | python3 ./bpe/get_vocab.py > ${CORPUS_DIR}/train-all.aspec.bpe.vocab.${LAN}
+done
+
 
 date

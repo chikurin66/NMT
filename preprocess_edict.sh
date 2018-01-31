@@ -26,6 +26,8 @@ python delete_stopword.py ${PREP_DIR}/stopword.ja ${CORPUS_DIR}/edict.wakati.ja 
     ${CORPUS_DIR}/edict.tok.ja ${CORPUS_DIR}/edict.tok.en
 "
 
+# apply bpe
+DONE="
 N_OP=32000
 CODE_FILE=${CORPUS_DIR}/shared_bpe${N_OP}.code
 #cat ${CORPUS_DIR}/edict.tok.ja ${CORPUS_DIR}/edict.tok.en | python ./bpe/learn_bpe.py -s ${N_OP} -o ${CODE_FILE}
@@ -35,3 +37,10 @@ CODE_FILE=${CORPUS_DIR}/shared_bpe${N_OP}.code
 
 python3 ./bpe/apply_bpe.py -c ${CODE_FILE} < ${CORPUS_DIR}/edict.tok.ja > ${CORPUS_DIR}/edict.bpe.ja
 python3 ./bpe/apply_bpe.py -c ${CODE_FILE} < ${CORPUS_DIR}/edict.tok.en > ${CORPUS_DIR}/edict.bpe.en
+"
+
+# create j2e dictionary
+
+
+#    | python create_j2e-dict_edict.py
+    

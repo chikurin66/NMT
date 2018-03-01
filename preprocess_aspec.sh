@@ -91,12 +91,61 @@ python3 ./bpe/apply_bpe.py -c ${CODE_FILE} < ${CORPUS_DIR}/${fn}.aspec.tok.${LAN
     > ${CORPUS_DIR}/${fn}.aspec.bpe.${LAN}
 done
 done
-'
 
 for LAN in ja en
 do
 cat ${CORPUS_DIR}/train-all.aspec.bpe.${LAN} | python3 ./bpe/get_vocab.py > ${CORPUS_DIR}/train-all.aspec.bpe.vocab.${LAN}
 done
+'
 
+# make 2 million training file that concatinate train1 and train2
+DONE='
+TRAIN="
+train-1
+train-2
+"
+
+for l in ${SLAN} ${TLAN}
+do
+    echo -n > ${CORPUS_DIR}/train.aspec.2mil.${l}
+    for f in ${TRAIN}
+    do
+        cat ${CORPUS_DIR}/${f}.aspec.tok.${l} >> ${CORPUS_DIR}/train.aspec.2mil.tok.${l}
+    done
+done
+
+N_OP=32000
+# code fileはtrain-allで学習したものをもちいる
+CODE_FILE=${CORPUS_DIR}/shared_bpe${N_OP}.code
+
+for LAN in ja en
+do
+python3 ./bpe/apply_bpe.py -c ${CODE_FILE} < ${CORPUS_DIR}/train.aspec.2mil.tok.${LAN} \
+    > ${CORPUS_DIR}/train.aspec.2mil.bpe.${LAN}
+
+cat ${CORPUS_DIR}/train.aspec.2mil.bpe.${LAN} | python3 ./bpe/get_vocab.py > ${CORPUS_DIR}/train.aspec.2mil.bpe.vocab.${LAN}
+done
+'
+
+# make 0.5 million  training file that concatinate train1 and train2
+
+f=train-1
+
+for l in ${SLAN} ${TLAN}
+do
+head -n 500000 ${CORPUS_DIR}/${f}.aspec.tok.${l} > ${CORPUS_DIR}/train.aspec.500k.tok.${l}
+done
+
+N_OP=32000
+# code fileはtrain-allで学習したものをもちいる
+CODE_FILE=${CORPUS_DIR}/shared_bpe${N_OP}.code
+
+for LAN in ja en
+do
+python3 ./bpe/apply_bpe.py -c ${CODE_FILE} < ${CORPUS_DIR}/train.aspec.500k.tok.${LAN} \
+    > ${CORPUS_DIR}/train.aspec.500k.bpe.${LAN}
+
+cat ${CORPUS_DIR}/train.aspec.500k.bpe.${LAN} | python3 ./bpe/get_vocab.py > ${CORPUS_DIR}/train.aspec.500k.bpe.vocab.${LAN}
+done
 
 date
